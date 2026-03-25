@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://tyrasoul.github.io/Overwatch/sitemap.xml
