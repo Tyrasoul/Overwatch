@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-S384QTVT8L"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-S384QTVT8L');
+</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Overwatch – Surveillance Reality Check</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Custom Scrollbar for a sleek look */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1f2937; }
+        ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+
+        body { background-color: #f3f4f6; color: #1f2937; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        
+        /* Required Chart Container Styling */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 350px;
+        }
+
+        /* Flashcard Flip Animation */
+        .perspective-1000 { perspective: 1000px; }
+        .transform-style-preserve-3d { transform-style: preserve-3d; }
+        .backface-hidden { backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg); }
+        .card-inner { transition: transform 0.6s; transform-style: preserve-3d; }
+        .flipped .card-inner { transform: rotateY(180deg); }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
+
+    <!-- Chosen Palette: Slate (Backgrounds), Emerald (True), Rose (False/Sensationalized), Amber (Mixed/Debated), Indigo (Primary Accents) -->
+    
+    <!-- Application Structure Plan: 
+         1. Header: Title and global controls (Flashcard Mode toggle).
+         2. Overview Dashboard: Visual summary of the fact-checked claims (Chart.js pie chart for truthfulness, bar chart for attack vectors). Provides immediate high-level understanding.
+         3. Interactive Database (The Core): A grid layout presenting the claims and programs. 
+         4. Flashcard Interaction: By default, cards show the claim and the detailed fact-check. When "Flashcard Mode" is active, the cards become flippable elements (Concept on front, Definition/Fact-Check on back) to aid memory retention, fulfilling the user's secondary request.
+         Why: This structure balances the need for deep analytical reading with the user's explicit request for a memorization/flashcard tool, without leaving a unified, single-page interface. 
+    -->
+
+    <!-- Visualization & Content Choices: 
+         - Overview Pie Chart (Chart.js): Goal is to summarize the veracity of the claims. Justification: Quick visual indicator of how many scary internet rumors are actually verified.
+         - Attack Vector Bar Chart (Chart.js): Goal is to show *how* intelligence agencies operate. Justification: Categorizes the technical concepts (Network vs Hardware vs Software).
+         - Flip Cards (HTML/CSS/JS): Goal is to explain individual programs (Vault 7, PRISM, etc.) and fact-check specific claims. Justification: Interactive revealing of information promotes active recall, transforming a dry report into an engaging learning tool. NO SVG/Mermaid used.
+    -->
+
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. HTML/CSS structural elements and Unicode icons are used for visual enhancement. -->
+
+    <!-- Header Section -->
+    <header class="bg-indigo-900 text-white p-6 shadow-md">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <h1 class="text-3xl font-bold tracking-tight">OVERWATCH</h1>
+                <p class="text-indigo-200 mt-1">What’s real vs exaggerated in surveillance</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="bg-indigo-800 p-3 rounded-lg flex items-center gap-3">
+                    <span class="font-semibold text-sm">Study Mode:</span>
+                    <label for="flashcard-toggle" class="flex items-center cursor-pointer">
+                        <div class="relative">
+                            <input type="checkbox" id="flashcard-toggle" class="sr-only">
+                            <div class="block bg-slate-600 w-14 h-8 rounded-full transition-colors duration-300" id="toggle-bg"></div>
+                            <div class="dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition transform duration-300" id="toggle-dot"></div>
+                        </div>
+                        <span class="ml-3 text-sm" id="mode-label">Report View</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </header>
+    <div class="flex justify-center mt-6">
+  <a href="report.pdf" target="_blank"
+     class="w-2/5 text-center bg-indigo-600 text-white px-6 py-3 rounded-xl shadow-md hover:bg-indigo-700 transition">
+      See the Evidence → (PDF)
+  </a>
+</div>
+   <div class="h-px bg-gray-200 my-6"></div>
+  <div class="max-w-3xl mx-auto text-center mb-8">
+  <p class="text-lg text-slate-700 leading-relaxed">
+    Some “conspiracy theories” are real
+  </p>
+
+  <p class="text-lg font-semibold text-slate-800 mt-2">
+    Others are exaggerated
+  </p>
+
+  <p class="text-lg font-bold text-indigo-700 mt-1">
+    This helps you see which ones actually stand
+  </p>
+
+    <p class="mt-3 text-sm text-slate-550">
+  ↓ Start with the key insights below, or see the evidence.
+</p>
+</div>
+
+    <main class="flex-grow max-w-7xl mx-auto p-6 w-full space-y-12">
+
+        <!-- Section: Interactive Database & Flashcards -->
+        <section>
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-slate-800 flex items-center gap-2">Browse Claims, Backed by Evidence</h2>
+                <p class="text-slate-600 mt-2" id="archive-description">
+                    Explore popular claims and what publicly available evidence actually shows.
+                    Search by keyword or agency, or switch to Study Mode to review as flashcards.
+                </p>
+                <div class="mt-4 flex gap-2">
+                    <input type="text" id="searchInput" placeholder="Search agencies (NSA, CIA), programs (PRISM), or concepts..." class="w-full md:w-1/2 p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <select id="filterSelect" class="p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
+                        <option value="all">All Statuses</option>
+                        <option value="True">Verified True</option>
+                        <option value="Mixed">Mixed/Debated</option>
+                        <option value="Sensationalized">Sensationalized/False</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Grid Container for Cards -->
+            <div id="cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Cards dynamically injected via JS -->
+            </div>
+        </section>
+
+        <!-- Section: Analytics Dashboard -->
+        <section id="dashboard-section" class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 transition-all duration-500">
+            <div class="mb-6 border-b border-slate-100 pb-4">
+                <h2 class="text-2xl font-bold text-slate-800 flex items-center gap-2">The Big Picture</h2>
+                <p class="text-slate-600 mt-2">
+                    This section shows the overall pattern across the claims.
+                </p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div class="flex flex-col items-center">
+                    <h3 class="text-lg font-semibold mb-4 text-slate-700">How the Claims Break Down</h3>
+                    <div class="chart-container">
+                        <canvas id="veracityChart"></canvas>
+                    </div>
+                </div>
+                <div class="flex flex-col items-center">
+                    <h3 class="text-lg font-semibold mb-4 text-slate-700">How the Surveillance Works</h3>
+                    <div class="chart-container">
+                        <canvas id="vectorChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+    </main>
+
+    <footer class="bg-slate-900 text-slate-400 py-6 text-center mt-auto">
+        <p class="text-sm">Built from public reporting, leaked documents (Snowden, Vault 7), and cybersecurity analyses.</p>
+    </footer>
+
+    <script>
+        // --- Data Storage: The Claims & Programs ---
+        const intelligenceData = [
+            {
+                id: 1,
+                frontConcept: "FBI uses malware/keyloggers that bypass antivirus",
+                cited: "Magic Lantern, CIPAV, NIT",
+                agency: "FBI",
+                status: "True",
+                vector: "Software",
+                backDetail: "The FBI uses specialized malware (called Network Investigative Techniques or NITs) to track targets.<br>Tools like Magic Lantern (keylogger) and CIPAV (spyware) were developed for this purpose.<br>In some cases, antivirus companies have whitelisted these tools or been legally required to ignore certain government surveillance signatures."
+            },
+            {
+                id: 2,
+                frontConcept: "Claims of hardware backdoors in Intel/AMD CPUs",
+                cited: "Intel ME, AMD PSP",
+                agency: "NSA",
+                status: "Mixed",
+                vector: "Hardware",
+                backDetail: "Intel and AMD CPUs include low-level components like the <b>Management Engine (ME)</b> and <b>Platform Security Processor (PSP)</b>.<br>These operate below the operating system and have deep system access, even when the PC appears “off” (but still powered).<br>While these features are widely used for management and security, they are also seen as potential vulnerabilities.<br>The claim that the NSA specifically “forced” them as backdoors is debated."
+            },
+            {
+                id: 3,
+                frontConcept: "NSA pushed a backdoored random number standard",
+                cited: "Dual_EC_DRBG, Bullrun",
+                agency: "NSA",
+                status: "True",
+                vector: "Cryptography",
+                backDetail: "Under the <b>Bullrun program</b>, the NSA worked to weaken encryption standards.<br>They promoted a flawed algorithm called <b>Dual_EC_DRBG</b>, which contained a potential backdoor, and had it adopted as a NIST standard.<br><br>Reports later revealed that the NSA paid RSA Security <b>$10 million</b> to make it the default in their BSAFE software."
+            },
+            {
+                id: 4,
+                frontConcept: "Devices can send data via radio without internet access",
+                cited: "Cottonmouth-I, SURLYSPAWN, ANT Catalog",
+                agency: "NSA",
+                status: "True",
+                vector: "Hardware",
+                backDetail: "Leaked NSA ANT catalog documents describe tools designed to access <b>air-gapped systems</b> (devices not connected to the internet).<br><br>For example, <b>Cottonmouth-I</b> is a USB device with a hidden radio transmitter, and <b>SURLYSPAWN</b> can capture keystrokes and send data over radio signals.<br><br>These tools allow data to be extracted even without an internet connection."
+            },
+            {
+                id: 5,
+                frontConcept: "NSA intercepts shipped devices to install malware",
+                cited: "TAO Team (Interdiction)",
+                agency: "NSA",
+                status: "True",
+                vector: "Physical",
+                backDetail: "Snowden documents revealed that the NSA’s <b>Tailored Access Operations (TAO)</b> unit intercepts shipments before they reach targets.<br><br>In a process called <b>interdiction</b>, devices are opened, modified with malware or backdoored firmware, and then resealed before delivery."
+            },
+            {
+                id: 6,
+                frontConcept: "Claims that NSA bugs microwaves and appliances",
+                cited: "ANT/TAO Catalog",
+                agency: "Sensationalized",
+                status: "Sensationalized",
+                vector: "Physical",
+                backDetail: "Interception of shipped devices is real for IT equipment (like routers and servers).<br><br>However, claims about bugging microwaves or kitchen appliances are false. They come from a misunderstood 2017 TV interview.<br><br>The NSA’s ANT catalog focuses on IT infrastructure, not everyday household appliances."
+            },
+            {
+                id: 7,
+                frontConcept: "NSA targets Tor users using ISP-level attacks",
+                cited: "FOXACID, QUANTUMINSERT",
+                agency: "NSA",
+                status: "True",
+                vector: "Network",
+                backDetail: "The NSA does not break Tor’s core encryption.<br>Instead, it targets users through network-level attacks.<br><br>Using ISP-level access, tools like <b>QUANTUMINSERT</b> can redirect a user’s browser to malicious servers <b>(FOXACID)</b>, which then deploy exploits (such as <b>EGOTISTICALGIRAFFE</b>) to infect the system and reveal the user’s identity."
+            },
+            {
+                id: 8,
+                frontConcept: "Reports suggest agencies received early access to some zero-day vulnerabilities",
+                cited: "TAO, PRISM",
+                agency: "NSA",
+                status: "True",
+                vector: "Software",
+                backDetail: "PRISM primarily deals with user data sharing, not vulnerabilities.<br><br>However, investigative reports (such as Bloomberg, 2013) suggested that, in some cases, agencies were informed about critical software vulnerabilities before public patches were released.<br><br><b>This created a window where those vulnerabilities could potentially be exploited.</b>"
+            },
+            {
+                id: 9,
+                frontConcept: "CIA explored hacking vehicle control systems",
+                cited: "Vault 7",
+                agency: "CIA",
+                status: "True",
+                vector: "Software",
+                backDetail: "WikiLeaks’ <b>Vault 7</b> documents revealed that the CIA’s Embedded Devices Branch researched methods to hack vehicle control systems.<br><br>According to the documents, one proposed goal was to enable remote vehicle control in a way that could be difficult to trace."
+            },
+            {
+                id: 10,
+                frontConcept: "CIA/MI5 developed tools to turn smart TVs into listening devices",
+                cited: "Weeping Angel",
+                agency: "CIA",
+                status: "True",
+                vector: "Software",
+                backDetail: "The <b>Weeping Angel</b> tool, revealed in the Vault 7 leaks, targeted Samsung smart TVs.<br><br>It placed the TV into a “Fake-Off” mode, where the screen appears off but the device remains active.<br>The microphone could continue recording room audio and send it over the internet."
+            },
+            {
+                id: 11,
+                frontConcept: "NSA taps internet backbone cables to collect data",
+                cited: "Room 641A, Upstream Collection",
+                agency: "NSA",
+                status: "True",
+                vector: "Network",
+                backDetail: "'Upstream collection' involves tapping into major fiber-optic cables that carry internet traffic.<br><br>At facilities like <b>Room 641A</b> (an AT&T site in San Francisco), optical splitters were used to copy internet traffic and route it to NSA systems."
+            },
+            // Definitions added for Flashcard richness
+            {
+                id: 12,
+                frontConcept: "NSA ANT Catalog",
+                cited: "Terminology",
+                agency: "NSA",
+                status: "Verified",
+                vector: "Hardware",
+                backDetail: "A classified document leaked in 2013 that lists surveillance tools used by the NSA’s <b>TAO</b> unit.<br><br>It mainly focuses on hardware implants and radio-based (RF) surveillance technology."
+            },
+             {
+                id: 13,
+                frontConcept: "Vault 7",
+                cited: "Terminology",
+                agency: "CIA",
+                status: "Verified",
+                vector: "Software",
+                backDetail: "A collection of documents published by WikiLeaks in 2017 revealing the CIA’s cyber tools and surveillance capabilities.<br><br>It includes tools targeting devices like cars, smart TVs, web browsers, and smartphones."
+            }
+        ];
+
+        // --- State Management ---
+        let isFlashcardMode = false;
+        let chartInstances = {};
+
+        // --- DOM Elements ---
+        const toggleInput = document.getElementById('flashcard-toggle');
+        const toggleBg = document.getElementById('toggle-bg');
+        const toggleDot = document.getElementById('toggle-dot');
+        const modeLabel = document.getElementById('mode-label');
+        const cardsContainer = document.getElementById('cards-container');
+        const searchInput = document.getElementById('searchInput');
+        const filterSelect = document.getElementById('filterSelect');
+        const dashboardSection = document.getElementById('dashboard-section');
+
+        // --- Initialization ---
+        function init() {
+            renderCharts();
+            renderCards();
+            setupEventListeners();
+        }
+
+        // --- Chart Generation (Chart.js) ---
+        function renderCharts() {
+            const statusCounts = { 'True': 0, 'Mixed': 0, 'Sensationalized': 0, 'Verified': 0 };
+            const vectorCounts = {};
+
+            intelligenceData.forEach(item => {
+                if(statusCounts[item.status] !== undefined) statusCounts[item.status]++;
+                vectorCounts[item.vector] = (vectorCounts[item.vector] || 0) + 1;
+            });
+
+            // Destroy existing charts to prevent canvas memory leaks
+            if(chartInstances.veracity) chartInstances.veracity.destroy();
+            if(chartInstances.vector) chartInstances.vector.destroy();
+
+            // Veracity Pie Chart
+            const ctxVeracity = document.getElementById('veracityChart').getContext('2d');
+            chartInstances.veracity = new Chart(ctxVeracity, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Verified True', 'Mixed/Debated', 'Sensationalized/False'],
+                    datasets: [{
+                        data: [statusCounts['True'] + statusCounts['Verified'], statusCounts['Mixed'], statusCounts['Sensationalized']],
+                        backgroundColor: ['#10b981', '#f59e0b', '#f43f5e'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: '#475569' } },
+                        tooltip: { bodyFont: { size: 14 } }
+                    }
+                }
+            });
+
+            // Vector Bar Chart
+            const ctxVector = document.getElementById('vectorChart').getContext('2d');
+            chartInstances.vector = new Chart(ctxVector, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(vectorCounts),
+                    datasets: [{
+                        label: 'Number of Programs',
+                        data: Object.values(vectorCounts),
+                        backgroundColor: '#6366f1',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, ticks: { stepSize: 1, color: '#64748b' }, grid: { color: '#e2e8f0' } },
+                        x: { ticks: { color: '#64748b' }, grid: { display: false } }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        // --- Card Rendering Logic ---
+        function getStatusColor(status) {
+            switch(status) {
+                case 'True': return 'bg-emerald-100 text-emerald-800 border-emerald-200';
+                case 'Verified': return 'bg-indigo-100 text-indigo-800 border-indigo-200';
+                case 'Mixed': return 'bg-amber-100 text-amber-800 border-amber-200';
+                case 'Sensationalized': return 'bg-rose-100 text-rose-800 border-rose-200';
+                default: return 'bg-slate-100 text-slate-800 border-slate-200';
+            }
+        }
+
+        function createCardHTML(item) {
+            const statusBadge = `<span class="px-2 py-1 text-xs font-semibold rounded-full border ${getStatusColor(item.status)}">${item.status}</span>`;
+            
+            if (isFlashcardMode) {
+                // Flashcard Layout (Interactive Flip)
+                return `
+                    <div class="h-80 perspective-1000 cursor-pointer group card-wrapper" onclick="this.classList.toggle('flipped')">
+                        <div class="card-inner relative w-full h-full shadow-md rounded-xl">
+                            <!-- Front -->
+                            <div class="absolute w-full h-full backface-hidden bg-white border-2 border-indigo-100 rounded-xl p-6 flex flex-col justify-center items-center text-center">
+                                <span class="absolute top-4 right-4 text-indigo-300 text-sm">&#x21BB; Click to flip</span>
+                                <h3 class="text-xl font-bold text-slate-800 leading-tight">${item.frontConcept}</h3>
+                                <div class="mt-4 flex gap-2 justify-center flex-wrap">
+                                    <span class="text-sm text-slate-500 bg-slate-100 px-2 py-1 rounded">Agency: ${item.agency}</span>
+                                </div>
+                            </div>
+                            <!-- Back -->
+                            <div class="absolute w-full h-full backface-hidden rotate-y-180 bg-indigo-50 border-2 border-indigo-200 rounded-xl p-6 flex flex-col justify-center overflow-y-auto custom-scrollbar">
+                                <div class="flex justify-between items-start mb-3">
+                                    <span class="text-xs font-bold text-indigo-500 uppercase tracking-wide">Fact Check / Definition</span>
+                                    ${statusBadge}
+                                </div>
+                                <p class="text-slate-700 text-sm leading-relaxed">${item.backDetail}</p>
+                                <div class="mt-4 pt-3 border-t border-indigo-100">
+                                    <span class="text-xs text-slate-500 block"><b>Cited:</b> ${item.cited}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Report View Layout (Static text)
+                return `
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col h-full hover:shadow-md transition-shadow">
+                        <div class="flex justify-between items-start mb-3 gap-2">
+                            <h3 class="text-lg font-bold text-slate-800 leading-snug">${item.frontConcept}</h3>
+                            <div class="flex-shrink-0">${statusBadge}</div>
+                        </div>
+                        <p class="text-slate-600 text-sm leading-relaxed flex-grow mb-4">${item.backDetail}</p>
+                        <div class="bg-slate-50 p-3 rounded border border-slate-100 mt-auto">
+                            <p class="text-xs text-slate-500 mb-1"><b>Agency:</b> ${item.agency}</p>
+                            <p class="text-xs text-slate-500"><b>Cited Programs:</b> <span class="text-indigo-600 font-medium">${item.cited}</span></p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function renderCards() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const filterValue = filterSelect.value;
+
+            const filteredData = intelligenceData.filter(item => {
+                const matchesSearch = item.frontConcept.toLowerCase().includes(searchTerm) || 
+                                      item.cited.toLowerCase().includes(searchTerm) || 
+                                      item.backDetail.toLowerCase().includes(searchTerm);
+                const matchesFilter = filterValue === 'all' || item.status === filterValue || (filterValue === 'True' && item.status === 'Verified');
+                return matchesSearch && matchesFilter;
+            });
+
+            if (filteredData.length === 0) {
+                cardsContainer.innerHTML = `<div class="col-span-full text-center py-10 text-slate-500">No records found matching your criteria.</div>`;
+                return;
+            }
+
+            cardsContainer.innerHTML = filteredData.map(item => createCardHTML(item)).join('');
+        }
+
+        // --- Event Listeners ---
+        function setupEventListeners() {
+            // Flashcard Toggle Logic
+            toggleInput.addEventListener('change', (e) => {
+                isFlashcardMode = e.target.checked;
+                
+                if(isFlashcardMode) {
+                    toggleBg.classList.replace('bg-slate-600', 'bg-indigo-500');
+                    toggleDot.classList.add('translate-x-6');
+                    modeLabel.innerText = "Flashcard Mode";
+                    modeLabel.classList.add('text-indigo-300', 'font-bold');
+                    dashboardSection.classList.add('opacity-50', 'scale-95'); // Dim dashboard to focus on cards
+                } else {
+                    toggleBg.classList.replace('bg-indigo-500', 'bg-slate-600');
+                    toggleDot.classList.remove('translate-x-6');
+                    modeLabel.innerText = "Report View";
+                    modeLabel.classList.remove('text-indigo-300', 'font-bold');
+                    dashboardSection.classList.remove('opacity-50', 'scale-95');
+                }
+                
+                renderCards();
+            });
+
+            // Search and Filter logic
+            searchInput.addEventListener('input', renderCards);
+            filterSelect.addEventListener('change', renderCards);
+        }
+
+        // Boot
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
