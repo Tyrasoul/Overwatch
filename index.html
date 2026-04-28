@@ -190,9 +190,55 @@
 
     </main>
 
-    <footer class="bg-slate-900 text-slate-400 py-6 text-center mt-auto">
-        <p class="text-sm">Built from public reporting, leaked documents (Snowden, Vault 7), and cybersecurity analyses.</p>
-    </footer>
+    <footer class="bg-slate-900 text-slate-400 py-10 mt-auto">
+  <div class="max-w-4xl mx-auto text-center space-y-6">
+
+    <!-- Existing footer line -->
+    <p class="text-sm opacity-70">
+      Built from public reporting, leaked documents (Snowden, Vault 7), and cybersecurity analyses.
+    </p>
+
+    <!-- Feedback Section -->
+    <div class="bg-slate-800 border border-slate-700 rounded-xl p-6 mt-6">
+      
+      <h3 class="text-lg font-semibold text-white mb-2">
+        What did this make you think?
+      </h3>
+      <p class="text-sm text-slate-400 mb-4">
+        If something felt wrong, unclear, or important — say it.
+      </p>
+
+      <!-- Buttons -->
+      <div id="feedback-buttons" class="flex flex-wrap justify-center gap-3 mb-4">
+        <button class="feedback-btn px-4 py-2 bg-slate-700 hover:bg-indigo-600 rounded-lg transition">🧠 Changed my perspective</button>
+        <button class="feedback-btn px-4 py-2 bg-slate-700 hover:bg-indigo-600 rounded-lg transition">🤔 Interesting but unclear</button>
+        <button class="feedback-btn px-4 py-2 bg-slate-700 hover:bg-indigo-600 rounded-lg transition">❌ I don’t buy this</button>
+        <button class="feedback-btn px-4 py-2 bg-slate-700 hover:bg-indigo-600 rounded-lg transition">🔥 Worth sharing</button>
+        <button class="feedback-btn px-4 py-2 bg-slate-700 hover:bg-indigo-600 rounded-lg transition">📄 Downloaded the report</button>
+      </div>
+
+      <!-- Hidden Text Input -->
+      <div id="feedback-box" class="hidden space-y-3">
+        <p id="feedback-prompt" class="text-sm text-slate-300"></p>
+        <textarea id="feedback-text"
+          class="w-full p-3 rounded-lg bg-slate-900 border border-slate-600 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          rows="3"
+          placeholder="Write anything (anonymous)">
+        </textarea>
+
+        <button id="submit-feedback"
+          class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition">
+          Submit
+        </button>
+
+        <p id="feedback-response" class="text-sm text-green-400 hidden">
+          Noted. Others have said similar things.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</footer>
 
     <script>
         // --- Data Storage: The Claims & Programs ---
@@ -510,6 +556,51 @@
 
         // Boot
         window.addEventListener('DOMContentLoaded', init);
+      // --- Feedback System ---
+const feedbackButtons = document.querySelectorAll('.feedback-btn');
+const feedbackBox = document.getElementById('feedback-box');
+const feedbackPrompt = document.getElementById('feedback-prompt');
+const feedbackResponse = document.getElementById('feedback-response');
+
+const prompts = {
+    "🧠 Changed my perspective": "What specifically changed your view?",
+    "🤔 Interesting but unclear": "Where did it lose you?",
+    "❌ I don’t buy this": "What part feels wrong or weak?",
+    "🔥 Worth sharing": "What made it share-worthy?",
+    "📄 Downloaded the report": "What made you download it?"
+};
+
+feedbackButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+        const text = btn.innerText;
+
+        // highlight selected
+        feedbackButtons.forEach(b => b.classList.remove('bg-indigo-600'));
+        btn.classList.add('bg-indigo-600');
+
+        // show input
+        feedbackBox.classList.remove('hidden');
+        feedbackPrompt.innerText = prompts[text] || "";
+    });
+});
+
+document.getElementById('submit-feedback').addEventListener('click', async () => {
+    const input = document.getElementById('feedback-text').value;
+    const selected = document.querySelector('.feedback-btn.bg-indigo-600')?.innerText;
+
+    if (!input.trim()) return;
+
+    await fetch("https://script.google.com/macros/s/AKfycbwcCe0QZbftLP4qYS4rPa70mGBVWMsbZEdjscd2EVDRtKoWWO6lUCJS3ms7OrOVCXAgsg/exec", {
+        method: "POST",
+        body: JSON.stringify({
+            type: selected,
+            message: input
+        })
+    });
+
+    document.getElementById('feedback-response').classList.remove('hidden');
+    document.getElementById('feedback-text').value = "";
+});
     </script>
 </body>
 </html>
