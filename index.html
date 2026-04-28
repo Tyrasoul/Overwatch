@@ -596,9 +596,12 @@ document.getElementById('submit-feedback').addEventListener('click', async () =>
     const input = document.getElementById('feedback-text').value;
     const selected = document.querySelector('.feedback-btn.bg-indigo-600')?.innerText;
 
+    // ❗ allow button-only submissions
     if (!selected && !input.trim()) return;
 
-    // 🔒 Prevent double clicks
+    // prevent double click
+    if (submitBtn.disabled) return;
+
     submitBtn.disabled = true;
     submitBtn.innerText = "Submitting...";
 
@@ -607,26 +610,20 @@ document.getElementById('submit-feedback').addEventListener('click', async () =>
             method: "POST",
             body: JSON.stringify({
                 type: selected,
-                message: input
+                message: input || ""   // allow empty
             })
         });
 
-        // ✅ Immediate confirmation
         document.getElementById('feedback-response').classList.remove('hidden');
-
-        // Reset
         document.getElementById('feedback-text').value = "";
 
     } catch (e) {
         console.error(e);
-        submitBtn.innerText = "Error, try again";
     }
 
-    // 🔓 Re-enable after short delay
-    setTimeout(() => {
-        submitBtn.disabled = false;
-        submitBtn.innerText = "Submit";
-    }, 1500);
+    // ✅ ALWAYS re-enable
+    submitBtn.disabled = false;
+    submitBtn.innerText = "Submit";
 });
     </script>
 </body>
