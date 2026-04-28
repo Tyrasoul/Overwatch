@@ -574,15 +574,21 @@ feedbackButtons.forEach(btn => {
     btn.addEventListener('click', () => {
         const text = btn.innerText;
 
-        // highlight selected
         feedbackButtons.forEach(b => b.classList.remove('bg-indigo-600'));
         btn.classList.add('bg-indigo-600');
 
-        // show input
-        feedbackBox.classList.remove('hidden');
         feedbackPrompt.innerText = prompts[text] || "";
+
+        feedbackBox.classList.remove('hidden');
+        feedbackBox.scrollIntoView({ behavior: "smooth", block: "center" });
+
+        const textarea = document.getElementById('feedback-text');
+        textarea.value = "";
+        textarea.placeholder = "Write anything (anonymous)";
+        textarea.focus();
     });
 });
+const submitBtn = document.getElementById('submit-feedback');
 
 document.getElementById('submit-feedback').addEventListener('click', async () => {
     const input = document.getElementById('feedback-text').value;
@@ -590,17 +596,37 @@ document.getElementById('submit-feedback').addEventListener('click', async () =>
 
     if (!input.trim()) return;
 
-    await fetch("https://script.google.com/macros/s/AKfycbwcCe0QZbftLP4qYS4rPa70mGBVWMsbZEdjscd2EVDRtKoWWO6lUCJS3ms7OrOVCXAgsg/exec", {
-        method: "POST",
-        body: JSON.stringify({
-            type: selected,
-            message: input
-        })
-    });
+    // 🔒 Prevent double clicks
+    submitBtn.disabled = true;
+    submitBtn.innerText = "Submitting...";
 
-    document.getElementById('feedback-response').classList.remove('hidden');
-    document.getElementById('feedback-text').value = "";
+    try {
+        await fetch("https://script.google.com/macros/s/AKfycbwcCe0QZbftLP4qYS4rPa70mGBVWMsbZEdjscd2EVDRtKoWWO6lUCJS3ms7OrOVCXAgsg/exec", {
+            method: "POST",
+            body: JSON.stringify({
+                type: selected,
+                message: input
+            })
+        });
+
+        // ✅ Immediate confirmation
+        document.getElementById('feedback-response').classList.remove('hidden');
+
+        // Reset
+        document.getElementById('feedback-text').value = "";
+
+    } catch (e) {
+        console.error(e);
+        submitBtn.innerText = "Error, try again";
+    }
+
+    // 🔓 Re-enable after short delay
+    setTimeout(() => {
+        submitBtn.disabled = false;
+        submitBtn.innerText = "Submit";
+    }, 1500);
 });
     </script>
 </body>
 </html>
+<!-- https://script.google.com/macros/s/AKfycbwcCe0QZbftLP4qYS4rPa70mGBVWMsbZEdjscd2EVDRtKoWWO6lUCJS3ms7OrOVCXAgsg/exec -->
